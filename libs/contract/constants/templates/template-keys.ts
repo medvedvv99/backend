@@ -24,5 +24,7 @@ export const TEMPLATE_KEYS = [
     'SS_SUPPORT_LINK',
     'SS_PROFILE_UPDATE_INTERVAL',
     'SS_HWID_LIMIT',
+    'HWID_DEVICES_COUNT',
+    'HWID_DEVICES_LIMIT',
 ] as const;
 export type TemplateKeys = (typeof TEMPLATE_KEYS)[number];

@@ -27,6 +27,7 @@ export class BaseUserEntity implements Users {
     public email: string | null;
 
     public hwidDeviceLimit: number | null;
+    public hwidDevicesCount: number = 0;
 
     public externalSquadUuid: string | null;
 

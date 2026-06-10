@@ -570,6 +570,11 @@ export class SubscriptionService {
         isHapp: boolean,
         settings: SubscriptionSettingsEntity,
     ): Promise<ISubscriptionHeaders> {
+        const countResult = await this.countHwidUserDevices({ userUuid: user.uuid });
+        if (countResult.isOk) {
+            user.hwidDevicesCount = countResult.response;
+        }
+
         const headers: ISubscriptionHeaders = {
             'content-disposition': `attachment; filename=${user.username}`,
             'support-url': settings.supportLink,

@@ -81,6 +81,12 @@ export class TemplateEngine {
                     ? user.hwidDeviceLimit
                     : (subscriptionSettings.hwidSettings.fallbackDeviceLimit ?? 0)
                 ).toString(),
+            HWID_DEVICES_COUNT: () => user.hwidDevicesCount.toString(),
+            HWID_DEVICES_LIMIT: () =>
+                (user.hwidDeviceLimit !== null
+                    ? user.hwidDeviceLimit
+                    : (subscriptionSettings.hwidSettings.fallbackDeviceLimit ?? 0)
+                ).toString(),
         });
     }
 }
