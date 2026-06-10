@@ -56,8 +56,14 @@ export class TemplateEngine {
             SUBSCRIPTION_URL: () => `https://${subPublicDomain}/${user.shortUuid}`,
             TAG: () => user.tag || '',
             EXPIRE_UNIX: () => dayjs(user.expireAt).unix(),
-            EXPIRE_DATE: () => dayjs(user.expireAt).format('DD.MM.YYYY'),
-            EXPIRE_DATETIME: () => dayjs(user.expireAt).format('DD.MM.YYYY HH:mm'),
+            EXPIRE_DATE: () => {
+                const d = new Date(user.expireAt);
+                return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+            },
+            EXPIRE_DATETIME: () => {
+                const d = new Date(user.expireAt);
+                return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            },
             SHORT_UUID: () => user.shortUuid,
             ID: () => user.tId.toString(),
             TRAFFIC_USED_BYTES: () => user.userTraffic.usedTrafficBytes.toString(),
