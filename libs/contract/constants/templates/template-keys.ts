@@ -10,6 +10,8 @@ export const TEMPLATE_KEYS = [
     'SUBSCRIPTION_URL',
     'TAG',
     'EXPIRE_UNIX',
+    'EXPIRE_DATE',
+    'EXPIRE_DATETIME',
     'SHORT_UUID',
     'ID',
     'TRAFFIC_USED_BYTES',
