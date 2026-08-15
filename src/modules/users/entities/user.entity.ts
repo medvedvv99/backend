@@ -13,6 +13,7 @@ export class UserEntity extends BaseUserEntity {
         'createdAt' | 'updatedAt' | 'viewPosition'
     >[];
     public readonly userTraffic: Omit<UserTrafficEntity, 'id'>;
+    public hwidDevicesCount: number = 0;
 
     constructor(user: BaseUserEntity & IActiveInternalSquads & UserTrafficEntity) {
         super(user);

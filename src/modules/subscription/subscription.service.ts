@@ -23,6 +23,7 @@ import { GetCachedTemplateNameQuery } from '@modules/external-squads/queries/get
 import { CreateWithAdvisoryLockCommand } from '@modules/hwid-user-devices/commands/create-with-advisory-lock';
 import { HwidUserDeviceEntity } from '@modules/hwid-user-devices/entities/hwid-user-device.entity';
 import { CheckHwidExistsQuery } from '@modules/hwid-user-devices/queries/check-hwid-exists';
+import { CountUsersDevicesQuery } from '@modules/hwid-user-devices/queries/count-users-devices';
 import type { ISRRContext } from '@modules/subscription-response-rules/interfaces';
 import { ResponseRulesMatcherService } from '@modules/subscription-response-rules/services/response-rules-matcher.service';
 import { SubscriptionSettingsEntity } from '@modules/subscription-settings/entities/subscription-settings.entity';
@@ -115,6 +116,13 @@ export class SubscriptionService {
 
             if (!user.isOk) {
                 return new SubscriptionNotFoundResponse();
+            }
+
+            const hwidDevicesCountResult = await this.queryBus.execute(
+                new CountUsersDevicesQuery(user.response.id),
+            );
+            if (hwidDevicesCountResult.isOk) {
+                user.response.hwidDevicesCount = hwidDevicesCountResult.response;
             }
 
             if (!srrContext.overrideTemplateName) {
@@ -303,6 +311,13 @@ export class SubscriptionService {
                 return fail(ERRORS.USER_NOT_FOUND);
             }
             const user = userResult.response;
+
+            const hwidDevicesCountResult = await this.queryBus.execute(
+                new CountUsersDevicesQuery(user.id),
+            );
+            if (hwidDevicesCountResult.isOk) {
+                user.hwidDevicesCount = hwidDevicesCountResult.response;
+            }
 
             const settingEntity = await this.queryBus.execute(
                 new GetCachedSubscriptionSettingsQuery(),
