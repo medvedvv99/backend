@@ -17,6 +17,8 @@ export const TEMPLATE_VARIABLES = {
     SUBSCRIPTION_URL: { args: [] },
     TAG: { args: [] },
     EXPIRE_UNIX: { args: [] },
+    EXPIRE_DATE: { args: [] },
+    EXPIRE_DATETIME: { args: [] },
     SHORT_UUID: { args: [] },
     ID: { args: [] },
     TRAFFIC_USED_BYTES: { args: [] },
@@ -27,6 +29,8 @@ export const TEMPLATE_VARIABLES = {
     CREATED_AT_UNIX: { args: [] },
     LAST_TRAFFIC_RESET_AT_UNIX: { args: [] },
     SS_HWID_LIMIT: { args: [] },
+    HWID_DEVICES_COUNT: { args: [] },
+    HWID_DEVICES_LIMIT: { args: [] },
     DESCRIPTION: { args: [] },
 } satisfies Record<TemplateKeys, TemplateVariableSpec>;
 

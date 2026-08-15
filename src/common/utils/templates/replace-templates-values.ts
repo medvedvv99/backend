@@ -13,6 +13,31 @@ const USER_STATUS_LABELS = Object.fromEntries(
     USERS_STATUS_VALUES.map((status) => [status, status.charAt(0) + status.slice(1).toLowerCase()]),
 ) as Record<TUsersStatus, string>;
 
+const EXPIRE_DATE_FALLBACK = '—';
+
+function formatExpireDate(value: Date | null | undefined, withTime = false): string {
+    if (value === null || value === undefined) {
+        return EXPIRE_DATE_FALLBACK;
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return EXPIRE_DATE_FALLBACK;
+    }
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const datePart = `${day}.${month}.${date.getFullYear()}`;
+
+    if (!withTime) {
+        return datePart;
+    }
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${datePart} ${hours}:${minutes}`;
+}
+
 export class TemplateEngine {
     static replace(template: string, resolvers: TemplateResolvers): string {
         return renderTemplate(parseTemplate(template), resolvers);
@@ -40,6 +65,8 @@ export class TemplateEngine {
             SUBSCRIPTION_URL: () => `https://${subPublicDomain}/${user.shortUuid}`,
             TAG: () => user.tag || '',
             EXPIRE_UNIX: () => dayjs(user.expireAt).unix(),
+            EXPIRE_DATE: () => formatExpireDate(user.expireAt),
+            EXPIRE_DATETIME: () => formatExpireDate(user.expireAt, true),
             SHORT_UUID: () => user.shortUuid,
             ID: () => user.id.toString(),
             TRAFFIC_USED_BYTES: () => user.userTraffic.usedTrafficBytes.toString(),
@@ -52,6 +79,12 @@ export class TemplateEngine {
                 user.lastTrafficResetAt ? dayjs(user.lastTrafficResetAt).unix() : 0,
             SS_HWID_LIMIT: () =>
                 (user.hwidDeviceLimit !== null
+                    ? user.hwidDeviceLimit
+                    : (subscriptionSettings.hwidSettings.fallbackDeviceLimit ?? 0)
+                ).toString(),
+            HWID_DEVICES_COUNT: () => user.hwidDevicesCount.toString(),
+            HWID_DEVICES_LIMIT: () =>
+                (user.hwidDeviceLimit !== null && user.hwidDeviceLimit !== 0
                     ? user.hwidDeviceLimit
                     : (subscriptionSettings.hwidSettings.fallbackDeviceLimit ?? 0)
                 ).toString(),

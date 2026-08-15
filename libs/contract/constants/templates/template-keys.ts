@@ -10,6 +10,8 @@ export const TEMPLATE_KEYS = [
     'SUBSCRIPTION_URL',
     'TAG',
     'EXPIRE_UNIX',
+    'EXPIRE_DATE',
+    'EXPIRE_DATETIME',
     'SHORT_UUID',
     'ID',
     'TRAFFIC_USED_BYTES',
@@ -20,6 +22,8 @@ export const TEMPLATE_KEYS = [
     'CREATED_AT_UNIX',
     'LAST_TRAFFIC_RESET_AT_UNIX',
     'SS_HWID_LIMIT',
+    'HWID_DEVICES_COUNT',
+    'HWID_DEVICES_LIMIT',
     'DESCRIPTION',
 ] as const;
 export type TemplateKeys = (typeof TEMPLATE_KEYS)[number];
