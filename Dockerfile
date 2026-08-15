@@ -2,10 +2,12 @@ FROM alpine:3.19 AS frontend
 WORKDIR /opt/frontend
 
 ARG BRANCH=main
-ARG FRONTEND_URL=https://github.com/remnawave/frontend/releases/latest/download/remnawave-frontend.zip
+ARG FRONTEND_URL=https://github.com/remnawave/frontend/releases/download/3.2.3/remnawave-frontend.zip
+ARG FRONTEND_SHA256=394f47c06d1c77edc5779de56c59b1bfa2298c24628a47fd03ec90cc65927268
 
 RUN apk add --no-cache curl unzip ca-certificates \
     && curl -L ${FRONTEND_URL} -o frontend.zip \
+    && echo "${FRONTEND_SHA256}  frontend.zip" | sha256sum -c - \
     && unzip frontend.zip -d frontend_temp \
     && curl -L https://validator.remna.dev/wasm_exec.js -o frontend_temp/dist/assets/wasm_exec.js \
     && curl -L https://validator.remna.dev/xray.schema.json -o frontend_temp/dist/assets/xray.schema.json \
