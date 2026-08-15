@@ -1,6 +1,6 @@
 import { SplitHTTPMode, TCPHeaderHTTP, TCPHeaderNone, VLessFlow } from 'xray-typed';
 
-import { TSubscriptionTemplateType } from '@libs/contracts/constants';
+import { TMihomoIpVersion, TSubscriptionTemplateType } from '@libs/contracts/constants';
 
 // ─── Protocol Options ────────────────────────────────────
 
@@ -59,7 +59,7 @@ export interface IGrpcTransportOptions {
 
 export interface IKcpTransportOptions {
     clientMtu: number;
-    tti: number;
+    clientTti: number;
     congestion: boolean;
 }
 
@@ -71,13 +71,16 @@ export interface IHysteriaTransportOptions {
 // ─── Security Options ────────────────────────────────────
 
 export interface ITlsSecurityOptions {
-    allowInsecure: boolean;
+    pinnedPeerCertSha256: string | null;
+    verifyPeerCertByName: string | null;
     alpn: string | null;
     enableSessionResumption: boolean;
     fingerprint: string | null;
     serverName: string | null;
     echConfigList: string | null;
     echForceQuery: string | null;
+    echSockopt: Record<string, unknown> | null;
+    cipherSuites: string | null;
 }
 
 export interface IRealitySecurityOptions {
@@ -186,7 +189,7 @@ export type SecurityVariant = TlsSecurity | RealitySecurity | NoneSecurity;
 
 export interface IProxyEntryMetadata {
     uuid: string;
-    tag: string | null;
+    tags: string[];
     excludeFromSubscriptionTypes: TSubscriptionTemplateType[];
     inboundTag: string;
     configProfileUuid: string | null;
@@ -216,6 +219,7 @@ export type ResolvedProxyConfig = {
     clientOverrides: {
         shuffleHost: boolean;
         mihomoX25519: boolean;
+        mihomoIpVersion: TMihomoIpVersion | null;
         serverDescription: string | null;
         xrayJsonTemplate: object | null;
     };
