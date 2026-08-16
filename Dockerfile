@@ -1,20 +1,28 @@
-FROM alpine:3.19 AS frontend
+FROM alpine@sha256:6baf43584bcb78f2e5847d1de515f23499913ac9f12bdf834811a3145eb11ca1 AS frontend
 WORKDIR /opt/frontend
 
 ARG BRANCH=main
 ARG FRONTEND_URL=https://github.com/remnawave/frontend/releases/download/3.2.3/remnawave-frontend.zip
 ARG FRONTEND_SHA256=394f47c06d1c77edc5779de56c59b1bfa2298c24628a47fd03ec90cc65927268
+ARG WASM_EXEC_JS_SHA256=0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14
+ARG XRAY_SCHEMA_JSON_SHA256=0230d21f8d0ea310a95e77c877ec998d44bd6224274e9dcd7ac8e6e50d870b90
+ARG XRAY_SCHEMA_CN_JSON_SHA256=b0dfa3bd0fb520d25797b0dc91b0bc15c343b90bba03680c37e55a63a4030f75
+ARG MAIN_WASM_SHA256=2dcbfaf8829ed3be2eb166f7f4fd321cbffc2b48e8da6b589de902b097f56529
 
 RUN apk add --no-cache curl unzip ca-certificates \
     && curl -L ${FRONTEND_URL} -o frontend.zip \
     && echo "${FRONTEND_SHA256}  frontend.zip" | sha256sum -c - \
     && unzip frontend.zip -d frontend_temp \
     && curl -L https://validator.remna.dev/wasm_exec.js -o frontend_temp/dist/assets/wasm_exec.js \
+    && echo "${WASM_EXEC_JS_SHA256}  frontend_temp/dist/assets/wasm_exec.js" | sha256sum -c - \
     && curl -L https://validator.remna.dev/xray.schema.json -o frontend_temp/dist/assets/xray.schema.json \
+    && echo "${XRAY_SCHEMA_JSON_SHA256}  frontend_temp/dist/assets/xray.schema.json" | sha256sum -c - \
     && curl -L https://validator.remna.dev/xray.schema.cn.json -o frontend_temp/dist/assets/xray.schema.cn.json \
-    && curl -L https://validator.remna.dev/main.wasm -o frontend_temp/dist/assets/main.wasm
+    && echo "${XRAY_SCHEMA_CN_JSON_SHA256}  frontend_temp/dist/assets/xray.schema.cn.json" | sha256sum -c - \
+    && curl -L https://validator.remna.dev/main.wasm -o frontend_temp/dist/assets/main.wasm \
+    && echo "${MAIN_WASM_SHA256}  frontend_temp/dist/assets/main.wasm" | sha256sum -c -
 
-FROM node:24.19-trixie-slim AS backend-build
+FROM node@sha256:0711b541c1c33a8a530ac4f0d391baa9a15b3d804695b1b24a47daa5fb60e74d AS backend-build
 WORKDIR /opt/app
 
 COPY package*.json ./
@@ -48,25 +56,29 @@ RUN cd node_modules/@prisma/client/runtime && \
     find node_modules \( -name '*.js.map' -o -name '*.mjs.map' \) -delete && \
     find node_modules \( -name '*.d.ts' -o -name '*.d.cts' -o -name '*.d.mts' \) -delete
 
-FROM node:24.19-trixie-slim
-
-LABEL org.opencontainers.image.title="Remnawave"
-LABEL org.opencontainers.image.description="Powerful proxy management tool"
-LABEL org.opencontainers.image.url="https://github.com/remnawave/backend"
-LABEL org.opencontainers.image.source="https://github.com/remnawave/backend"
-LABEL org.opencontainers.image.vendor="Remnawave"
-LABEL org.opencontainers.image.licenses="AGPL-3.0"
-LABEL org.opencontainers.image.documentation="https://docs.rw"
-
-WORKDIR /opt/app
+FROM node@sha256:0711b541c1c33a8a530ac4f0d391baa9a15b3d804695b1b24a47daa5fb60e74d
 
 ARG BRANCH=main
-ARG __RW_METADATA_VERSION=1.1.1
+ARG __RW_METADATA_VERSION=3.2.3-custom.1
 ARG __RW_METADATA_GIT_BACKEND_COMMIT=0f344f388807f5323b49024a563b3f8146d66857
 ARG __RW_METADATA_GIT_FRONTEND_COMMIT=0f344f388807f5323b49024a563b3f8146d66857
 ARG __RW_METADATA_GIT_BRANCH=dev
 ARG __RW_METADATA_BUILD_TIME=2011-11-11T11:11:11Z
 ARG __RW_METADATA_BUILD_NUMBER=0
+
+LABEL org.opencontainers.image.title="Remnawave"
+LABEL org.opencontainers.image.description="Powerful proxy management tool"
+LABEL org.opencontainers.image.url="https://github.com/remnawave/backend"
+LABEL org.opencontainers.image.source="https://github.com/medvedvv99/backend"
+LABEL org.opencontainers.image.vendor="Remnawave"
+LABEL org.opencontainers.image.licenses="AGPL-3.0"
+LABEL org.opencontainers.image.documentation="https://docs.rw"
+LABEL org.opencontainers.image.version="${__RW_METADATA_VERSION}"
+LABEL org.opencontainers.image.revision="${__RW_METADATA_GIT_BACKEND_COMMIT}"
+LABEL org.opencontainers.image.created="${__RW_METADATA_BUILD_TIME}"
+LABEL org.opencontainers.image.frontend-revision="${__RW_METADATA_GIT_FRONTEND_COMMIT}"
+
+WORKDIR /opt/app
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
@@ -95,7 +107,7 @@ COPY prisma.config.ts ./prisma.config.ts
 COPY ecosystem.config.js ./
 COPY docker-entrypoint.sh ./
 
-RUN npm install -g pm2 \
+RUN npm install -g pm2@7.0.3 \
     && chmod +x /opt/app/dist/cli.js \
     && ln -s /opt/app/dist/cli.js /usr/local/bin/cli \
     && rm -rf /usr/local/lib/node_modules/npm \
